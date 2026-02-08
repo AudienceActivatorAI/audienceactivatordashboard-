@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-ink-900 text-ink-50 font-body;
+    background-image: theme('backgroundImage.dashboard-gradient'),
+      linear-gradient(135deg, #0b0f19, #10172a 60%, #101429);
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-white/5 border border-white/10 backdrop-blur-md shadow-panel rounded-2xl;
+  }
+
+  .chip {
+    @apply px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest bg-white/10 border border-white/10;
+  }
+
+  .btn {
+    @apply px-4 py-2 rounded-full font-semibold transition shadow-lg;
+  }
+
+  .btn-primary {
+    @apply btn bg-electric-600 hover:bg-electric-500 text-ink-900;
+  }
+
+  .btn-ghost {
+    @apply btn border border-white/20 text-white/80 hover:text-white hover:border-white/40;
+  }
+
+  .kpi-card {
+    @apply glass-panel p-5 flex flex-col gap-2;
+  }
+}

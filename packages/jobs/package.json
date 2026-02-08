@@ -1,0 +1,33 @@
+{
+  "name": "@dealerbdc/jobs",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo node_modules"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "@dealerbdc/core": "workspace:*",
+    "@dealerbdc/database": "workspace:*",
+    "@dealerbdc/shared": "workspace:*",
+    "@signalwire/realtime-api": "^4.2.0",
+    "drizzle-orm": "^0.29.3",
+    "inngest": "^3.15.5",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.1"
+  }
+}

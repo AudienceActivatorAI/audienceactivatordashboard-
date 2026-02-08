@@ -1,0 +1,39 @@
+{
+  "name": "dealerbdc-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DealerBDC.AI - Multi-dealer AI BDC system for automotive dealerships",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "db:generate": "pnpm --filter @dealerbdc/database db:generate",
+    "db:migrate": "pnpm --filter @dealerbdc/database db:migrate",
+    "db:studio": "pnpm --filter @dealerbdc/database db:studio",
+    "import:csv": "pnpm --filter @dealerbdc/database import:csv",
+    "build:aggregates": "pnpm --filter @dealerbdc/database build:aggregates",
+    "dev:demo": "pnpm -r --filter @dealerbdc/api --filter @dealerbdc/dashboard dev",
+    "start:demo": "pnpm --filter @dealerbdc/api start",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "prepare": "husky install || true"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "eslint": "^8.56.0",
+    "husky": "^8.0.3",
+    "prettier": "^3.2.4",
+    "turbo": "^1.12.4",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.1"
+  },
+  "packageManager": "pnpm@8.15.1"
+}
