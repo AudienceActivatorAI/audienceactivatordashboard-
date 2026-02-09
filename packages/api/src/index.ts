@@ -10,6 +10,14 @@ app.use(express.json());
 
 const db = createDbConnection();
 
+const getRows = <T extends Record<string, unknown>>(result: unknown): T[] => {
+  if (Array.isArray(result)) return result as T[];
+  if (result && typeof result === 'object' && 'rows' in result) {
+    return (result as { rows: T[] }).rows ?? [];
+  }
+  return [];
+};
+
 type Filters = {
   dateFrom: string;
   dateTo: string;
@@ -186,7 +194,7 @@ app.get('/api/overview', async (req, res) => {
     limit 10
   `);
 
-  const totalsRow = (totals as unknown as { rows: Record<string, number>[] }).rows?.[0] ?? {};
+  const totalsRow = getRows<Record<string, number>>(totals)[0] ?? {};
 
   res.json({
     kpis: {
@@ -200,8 +208,8 @@ app.get('/api/overview', async (req, res) => {
       hot: totalsRow.hot_shoppers ?? 0,
       superhot: totalsRow.superhot_shoppers ?? 0,
     },
-    trend: (trend as unknown as { rows: Record<string, string>[] }).rows ?? [],
-    samples: (samples as unknown as { rows: Record<string, string>[] }).rows ?? [],
+    trend: getRows<Record<string, string>>(trend),
+    samples: getRows<Record<string, string>>(samples),
   });
 });
 
@@ -241,7 +249,7 @@ app.get('/api/geo/state', async (req, res) => {
         group by state
         order by identified_shoppers desc
       `);
-  res.json({ rows: (result as unknown as { rows: Record<string, string>[] }).rows ?? [] });
+  res.json({ rows: getRows<Record<string, string>>(result) });
 });
 
 app.get('/api/geo/city', async (req, res) => {
@@ -286,7 +294,7 @@ app.get('/api/geo/city', async (req, res) => {
         group by state, city
         order by identified_shoppers desc
       `);
-  res.json({ rows: (result as unknown as { rows: Record<string, string>[] }).rows ?? [] });
+  res.json({ rows: getRows<Record<string, string>>(result) });
 });
 
 app.get('/api/geo/zip', async (req, res) => {
@@ -333,7 +341,7 @@ app.get('/api/geo/zip', async (req, res) => {
         group by state, city, zip
         order by identified_shoppers desc
       `);
-  res.json({ rows: (result as unknown as { rows: Record<string, string>[] }).rows ?? [] });
+  res.json({ rows: getRows<Record<string, string>>(result) });
 });
 
 app.get('/api/vehicles/top', async (req, res) => {
@@ -354,23 +362,26 @@ app.get('/api/vehicles/top', async (req, res) => {
     order by shopper_count desc
     limit 20
   `);
-  res.json({ rows: (result as unknown as { rows: Record<string, string>[] }).rows ?? [] });
+  res.json({ rows: getRows<Record<string, string>>(result) });
 });
 
 app.get('/api/filters', async (_req, res) => {
-  const states = await db.execute(sql`
+  const statesResult = await db.execute(sql`
     select distinct state from dim_geo order by state
   `);
-  const makes = await db.execute(sql`
+  const makesResult = await db.execute(sql`
     select distinct make from dim_vehicle order by make
   `);
-  const models = await db.execute(sql`
+  const modelsResult = await db.execute(sql`
     select distinct model from dim_vehicle order by model
   `);
+  const states = getRows<{ state: string }>(statesResult);
+  const makes = getRows<{ make: string }>(makesResult);
+  const models = getRows<{ model: string }>(modelsResult);
   res.json({
-    states: (states as unknown as { rows: { state: string }[] }).rows.map((r) => r.state),
-    makes: (makes as unknown as { rows: { make: string }[] }).rows.map((r) => r.make),
-    models: (models as unknown as { rows: { model: string }[] }).rows.map((r) => r.model),
+    states: states.map((r) => r.state),
+    makes: makes.map((r) => r.make),
+    models: models.map((r) => r.model),
     yearBands: ['2015-2019', '2020-2022', '2023-2024', '2025+'],
     creditRatings: ['A', 'B', 'C', 'D', 'E'],
   });
