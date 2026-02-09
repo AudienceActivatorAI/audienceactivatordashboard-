@@ -206,9 +206,9 @@ export const metricDefinitions = [
 ];
 
 export const demoAssumptions = [
-  'Counts are expanded by a deterministic weight per shopper (no duplicate rows).',
+  'Counts are scaled with a deterministic weight per shopper (no duplicate rows).',
   'Weights are assigned via demo_multiplier_bucket derived from a customer_id hash.',
-  'Intent scores are synthetic and deterministic (hash + vehicle + match score + credit rating).',
+  'Intent scores are deterministic (hash + vehicle + match score + credit rating).',
   'Any sample records shown in the UI are masked and limited to 10 rows.',
 ];
 

@@ -93,7 +93,7 @@ export default function App() {
               In-Market + High-Intent Vehicle Shoppers
             </h1>
             <p className="text-white/70 mt-3 max-w-xl">
-              Demo-ready intelligence stack with deterministic intent scoring and geo drilldowns.
+              In-market shopper intelligence with intent scoring and geo drilldowns.
             </p>
           </div>
           <div className="flex gap-3">
@@ -136,9 +136,9 @@ export default function App() {
             </div>
             <div className="glass-panel p-4 flex items-center justify-between">
               <div>
-                <h3 className="font-display text-lg">Demo Sample</h3>
+                <h3 className="font-display text-lg">Sample Records</h3>
                 <p className="text-sm text-white/60">
-                  Masked records for storytelling (max 10).
+                  Masked records for context (max 10).
                 </p>
               </div>
               <button

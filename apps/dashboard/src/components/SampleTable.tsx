@@ -7,7 +7,7 @@ type Props = {
 export const SampleTable = ({ samples }: Props) => {
   return (
     <div className="glass-panel p-6">
-      <h3 className="font-display text-lg mb-4">Demo Sample (Masked)</h3>
+      <h3 className="font-display text-lg mb-4">Sample Records (Masked)</h3>
       <div className="overflow-auto">
         <table className="w-full text-sm">
           <thead>

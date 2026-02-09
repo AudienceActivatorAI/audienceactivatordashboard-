@@ -33,7 +33,7 @@ export const CodexTab = ({ codex }: Props) => {
           <div>
             <h3 className="font-display text-lg">Data Dictionary</h3>
             <p className="text-sm text-white/60">
-              Searchable schema reference (masked fields only in UI).
+              Searchable schema reference (masked fields in UI).
             </p>
           </div>
           <input
@@ -92,14 +92,14 @@ export const CodexTab = ({ codex }: Props) => {
           </ul>
         </div>
       </div>
-      <div className="glass-panel p-6">
-        <h3 className="font-display text-lg mb-3">Demo Assumptions</h3>
-        <ul className="text-sm text-white/70 space-y-3">
-          {codex.demoAssumptions.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </div>
+        <div className="glass-panel p-6">
+          <h3 className="font-display text-lg mb-3">Data Notes</h3>
+          <ul className="text-sm text-white/70 space-y-3">
+            {codex.demoAssumptions.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
     </div>
   );
 };
