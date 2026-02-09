@@ -1,4 +1,4 @@
-const tabs = ['Overview', 'Geo Intelligence', 'Vehicle Demand', 'Intent & Segments', 'Codex'] as const;
+const tabs = ['Overview', 'Geo Intelligence', 'Vehicle Demand', 'Intent & Segments', 'AI Model'] as const;
 
 export type TabKey = (typeof tabs)[number];
 

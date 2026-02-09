@@ -58,7 +58,7 @@ export default function App() {
   }, [filters]);
 
   useEffect(() => {
-    if (activeTab !== 'Codex') return;
+    if (activeTab !== 'AI Model') return;
     if (codex) return;
     fetchCodex()
       .then(setCodex)
@@ -88,7 +88,7 @@ export default function App() {
       <header className="max-w-6xl mx-auto px-6 py-10">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div>
-            <span className="chip text-white/70">DealerBDC.AI</span>
+            <span className="chip text-white/70">Audience Activator</span>
             <h1 className="text-3xl md:text-4xl font-display mt-4">
               In-Market + High-Intent Vehicle Shoppers
             </h1>
@@ -99,9 +99,6 @@ export default function App() {
           <div className="flex gap-3">
             <button className="btn-ghost" type="button">
               Export snapshot
-            </button>
-            <button className="btn-primary" type="button">
-              Share demo link
             </button>
           </div>
         </div>
@@ -182,7 +179,7 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'Codex' && <CodexTab codex={codex} />}
+        {activeTab === 'AI Model' && <CodexTab codex={codex} />}
       </main>
     </div>
   );
