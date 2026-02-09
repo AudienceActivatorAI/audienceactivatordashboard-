@@ -22,4 +22,4 @@ COPY --from=build /app/packages/database/dist ./packages/database/dist
 COPY --from=build /app/packages/api/dist ./packages/api/dist
 COPY --from=build /app/apps/dashboard/dist ./apps/dashboard/dist
 
-CMD ["/bin/sh", "-c", "if [ \"$SERVICE\" = \"dashboard\" ]; then pnpm --filter @dealerbdc/dashboard preview --host 0.0.0.0 --port $PORT; else pnpm --filter @dealerbdc/api start; fi"]
+CMD ["/bin/sh", "-c", "if [ \"$SERVICE\" = \"dashboard\" ]; then printf '{\"apiBase\":\"%s\"}' \"$VITE_API_BASE\" > /app/apps/dashboard/dist/runtime-config.json; pnpm --filter @dealerbdc/dashboard preview --host 0.0.0.0 --port $PORT; else pnpm --filter @dealerbdc/api start; fi"]

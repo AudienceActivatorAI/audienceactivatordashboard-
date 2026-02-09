@@ -1,6 +1,19 @@
 import type { CodexResponse, Filters, FiltersResponse, GeoRow, OverviewResponse, VehiclesRow } from './types';
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:4000';
+const DEFAULT_API_BASE = 'http://localhost:4000';
+const BUILD_API_BASE = import.meta.env.VITE_API_BASE as string | undefined;
+
+let apiBasePromise: Promise<string> | null = null;
+
+const resolveApiBase = async () => {
+  if (BUILD_API_BASE) return BUILD_API_BASE;
+  if (apiBasePromise) return apiBasePromise;
+  apiBasePromise = fetch('/runtime-config.json')
+    .then((res) => (res.ok ? res.json() : null))
+    .then((data) => (data && typeof data.apiBase === 'string' ? data.apiBase : DEFAULT_API_BASE))
+    .catch(() => DEFAULT_API_BASE);
+  return apiBasePromise;
+};
 
 const toQuery = (filters: Filters) => {
   const params = new URLSearchParams();
@@ -17,46 +30,51 @@ const toQuery = (filters: Filters) => {
 };
 
 export const fetchOverview = async (filters: Filters): Promise<OverviewResponse> => {
-  const res = await fetch(`${API_BASE}/api/overview?${toQuery(filters)}`);
+  const apiBase = await resolveApiBase();
+  const res = await fetch(`${apiBase}/api/overview?${toQuery(filters)}`);
   if (!res.ok) throw new Error('Failed to load overview');
   return res.json();
 };
 
 export const fetchGeo = async (filters: Filters): Promise<GeoRow[]> => {
+  const apiBase = await resolveApiBase();
   const query = toQuery(filters);
   if (filters.state && filters.city) {
-    const res = await fetch(`${API_BASE}/api/geo/zip?${query}`);
+    const res = await fetch(`${apiBase}/api/geo/zip?${query}`);
     if (!res.ok) throw new Error('Failed to load zip geo');
     const data = await res.json();
     return data.rows ?? [];
   }
   if (filters.state) {
-    const res = await fetch(`${API_BASE}/api/geo/city?${query}`);
+    const res = await fetch(`${apiBase}/api/geo/city?${query}`);
     if (!res.ok) throw new Error('Failed to load city geo');
     const data = await res.json();
     return data.rows ?? [];
   }
-  const res = await fetch(`${API_BASE}/api/geo/state?${query}`);
+  const res = await fetch(`${apiBase}/api/geo/state?${query}`);
   if (!res.ok) throw new Error('Failed to load state geo');
   const data = await res.json();
   return data.rows ?? [];
 };
 
 export const fetchVehicles = async (filters: Filters): Promise<VehiclesRow[]> => {
-  const res = await fetch(`${API_BASE}/api/vehicles/top?${toQuery(filters)}`);
+  const apiBase = await resolveApiBase();
+  const res = await fetch(`${apiBase}/api/vehicles/top?${toQuery(filters)}`);
   if (!res.ok) throw new Error('Failed to load vehicles');
   const data = await res.json();
   return data.rows ?? [];
 };
 
 export const fetchCodex = async (): Promise<CodexResponse> => {
-  const res = await fetch(`${API_BASE}/api/codex`);
+  const apiBase = await resolveApiBase();
+  const res = await fetch(`${apiBase}/api/codex`);
   if (!res.ok) throw new Error('Failed to load codex');
   return res.json();
 };
 
 export const fetchFilters = async (): Promise<FiltersResponse> => {
-  const res = await fetch(`${API_BASE}/api/filters`);
+  const apiBase = await resolveApiBase();
+  const res = await fetch(`${apiBase}/api/filters`);
   if (!res.ok) throw new Error('Failed to load filters');
   return res.json();
 };
