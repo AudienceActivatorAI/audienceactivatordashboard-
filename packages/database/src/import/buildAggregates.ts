@@ -126,7 +126,17 @@ const run = async () => {
     insert into daily_zip_agg
     select
       (date_trunc('week', f.created_at)::date
-        + (abs(('x' || substr(md5(f.customer_id::text), 1, 8))::bit(32)::int) % 7) * interval '1 day'
+        + (
+          case
+            when seed < 8 then 0       -- Mon 8%
+            when seed < 18 then 1      -- Tue 10%
+            when seed < 30 then 2      -- Wed 12%
+            when seed < 48 then 3      -- Thu 18%
+            when seed < 68 then 4      -- Fri 20%
+            when seed < 88 then 5      -- Sat 20%
+            else 6                     -- Sun 12%
+          end
+        ) * interval '1 day'
       )::date as date,
       g.state,
       g.city,
@@ -141,7 +151,12 @@ const run = async () => {
       sum(case when f.intent_tier = 'Warm' then f.demo_weight else 0 end)::int as warm_shoppers,
       sum(case when f.intent_tier = 'Hot' then f.demo_weight else 0 end)::int as hot_shoppers,
       sum(case when f.intent_tier = 'SuperHot' then f.demo_weight else 0 end)::int as superhot_shoppers
-    from fact_shopper f
+    from (
+      select
+        f.*,
+        abs(('x' || substr(md5(f.customer_id::text), 1, 8))::bit(32)::int) % 100 as seed
+      from fact_shopper f
+    ) f
     join dim_geo g on g.id = f.geo_id
     group by date, g.state, g.city, g.zip;
   `);
