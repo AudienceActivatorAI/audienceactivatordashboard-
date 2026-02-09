@@ -9,6 +9,7 @@ COPY apps ./apps
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
+RUN pnpm --filter @dealerbdc/database build
 RUN pnpm --filter @dealerbdc/api build
 RUN pnpm --filter @dealerbdc/dashboard build
 
@@ -17,6 +18,7 @@ ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/packages ./packages
 COPY --from=deps /app/apps ./apps
+COPY --from=build /app/packages/database/dist ./packages/database/dist
 COPY --from=build /app/packages/api/dist ./packages/api/dist
 COPY --from=build /app/apps/dashboard/dist ./apps/dashboard/dist
 
