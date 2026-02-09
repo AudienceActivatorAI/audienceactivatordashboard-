@@ -125,7 +125,9 @@ const run = async () => {
   await sql.unsafe(`
     insert into daily_zip_agg
     select
-      date_trunc('day', f.created_at)::date as date,
+      (date_trunc('week', f.created_at)::date
+        + (abs(('x' || substr(md5(f.customer_id::text), 1, 8))::bit(32)::int) % 7) * interval '1 day'
+      )::date as date,
       g.state,
       g.city,
       g.zip,
