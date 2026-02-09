@@ -465,7 +465,7 @@ export const rawImport = pgTable('raw_import', {
   personalZip: text('personal_zip').notNull(),
   skiptraceCreditRating: text('skiptrace_credit_rating').notNull(),
   skiptraceMatchScore: integer('skiptrace_match_score').notNull(),
-  skiptraceIp: inet('skiptrace_ip'),
+  skiptraceIp: text('skiptrace_ip'),
   vehicleMake: text('vehicle_make').notNull(),
   vehicleModel: text('vehicle_model').notNull(),
   modelYear: integer('model_year').notNull(),

@@ -14,7 +14,7 @@ create table if not exists raw_import (
   personal_zip text not null,
   skiptrace_credit_rating text not null,
   skiptrace_match_score int not null,
-  skiptrace_ip inet,
+  skiptrace_ip text,
   vehicle_make text not null,
   vehicle_model text not null,
   model_year int not null,
