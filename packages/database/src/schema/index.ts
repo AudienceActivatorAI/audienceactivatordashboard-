@@ -1,5 +1,5 @@
-import { pgTable, uuid, text, timestamp, jsonb, boolean, integer, time, index, uniqueIndex, check, inet, date } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import { pgTable, uuid, text, timestamp, jsonb, boolean, integer, time, index, uniqueIndex, inet, date } from 'drizzle-orm/pg-core';
+import { relations, sql } from 'drizzle-orm';
 
 // ============================================================
 // DEALERS AND STORES
@@ -17,7 +17,7 @@ export const dealers = pgTable('dealers', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   metadata: jsonb('metadata').default('{}'),
 }, (table) => ({
-  statusIdx: index('idx_dealers_status').on(table.id).where('status = \'active\''),
+  statusIdx: index('idx_dealers_status').on(table.id).where(sql`status = 'active'`),
 }));
 
 export const stores = pgTable('stores', {
@@ -34,7 +34,7 @@ export const stores = pgTable('stores', {
   metadata: jsonb('metadata').default('{}'),
 }, (table) => ({
   dealerIdx: index('idx_stores_dealer').on(table.dealerId),
-  dealerActiveIdx: index('idx_stores_dealer_active').on(table.dealerId, table.status).where('status = \'active\''),
+  dealerActiveIdx: index('idx_stores_dealer_active').on(table.dealerId, table.status).where(sql`status = 'active'`),
 }));
 
 export const dealerUsers = pgTable('dealer_users', {
@@ -57,7 +57,9 @@ export const dealerUsers = pgTable('dealer_users', {
   uniqueDealerEmail: uniqueIndex('unique_dealer_user_email').on(table.dealerId, table.email),
   dealerIdx: index('idx_dealer_users_dealer').on(table.dealerId),
   storeIdx: index('idx_dealer_users_store').on(table.storeId),
-  transferIdx: index('idx_dealer_users_transfer').on(table.dealerId, table.acceptsTransfers, table.status).where('accepts_transfers = true AND status = \'active\''),
+  transferIdx: index('idx_dealer_users_transfer').on(table.dealerId, table.acceptsTransfers, table.status).where(
+    sql`accepts_transfers = true AND status = 'active'`
+  ),
 }));
 
 export const dealerNumbers = pgTable('dealer_numbers', {
@@ -73,7 +75,7 @@ export const dealerNumbers = pgTable('dealer_numbers', {
   metadata: jsonb('metadata').default('{}'),
 }, (table) => ({
   dealerIdx: index('idx_dealer_numbers_dealer').on(table.dealerId),
-  activeIdx: index('idx_dealer_numbers_active').on(table.dealerId, table.status).where('status = \'active\''),
+  activeIdx: index('idx_dealer_numbers_active').on(table.dealerId, table.status).where(sql`status = 'active'`),
 }));
 
 export const dealerCallingProfiles = pgTable('dealer_calling_profiles', {
@@ -103,13 +105,13 @@ export const routingRules = pgTable('routing_rules', {
   conditions: jsonb('conditions').notNull(),
   routeToType: text('route_to_type').notNull(), // 'user' | 'team' | 'department' | 'voicemail'
   routeToId: uuid('route_to_id'),
-  fallbackRuleId: uuid('fallback_rule_id').references(() => routingRules.id),
+  fallbackRuleId: uuid('fallback_rule_id'),
   active: boolean('active').notNull().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => ({
-  dealerIdx: index('idx_routing_rules_dealer').on(table.dealerId, table.priority).where('active = true'),
-  storeIdx: index('idx_routing_rules_store').on(table.storeId, table.priority).where('active = true'),
+  dealerIdx: index('idx_routing_rules_dealer').on(table.dealerId, table.priority).where(sql`active = true`),
+  storeIdx: index('idx_routing_rules_store').on(table.storeId, table.priority).where(sql`active = true`),
 }));
 
 // ============================================================
@@ -141,8 +143,8 @@ export const leads = pgTable('leads', {
 }, (table) => ({
   dealerIdx: index('idx_leads_dealer').on(table.dealerId),
   dealerStatusIdx: index('idx_leads_dealer_status').on(table.dealerId, table.status),
-  phoneIdx: index('idx_leads_phone').on(table.phone).where('phone IS NOT NULL'),
-  emailIdx: index('idx_leads_email').on(table.email).where('email IS NOT NULL'),
+  phoneIdx: index('idx_leads_phone').on(table.phone).where(sql`phone IS NOT NULL`),
+  emailIdx: index('idx_leads_email').on(table.email).where(sql`email IS NOT NULL`),
   ownedByIdx: index('idx_leads_owned_by').on(table.dealerId, table.ownedBy, table.status),
 }));
 
@@ -168,7 +170,7 @@ export const leadIntentScores = pgTable('lead_intent_scores', {
   scoredAt: timestamp('scored_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => ({
   leadIdx: index('idx_intent_scores_lead').on(table.leadId, table.scoredAt),
-  highScoreIdx: index('idx_intent_scores_high').on(table.leadId, table.score).where('score >= 70'),
+  highScoreIdx: index('idx_intent_scores_high').on(table.leadId, table.score).where(sql`score >= 70`),
 }));
 
 // ============================================================
@@ -200,8 +202,8 @@ export const callSessions = pgTable('call_sessions', {
 }, (table) => ({
   dealerIdx: index('idx_call_sessions_dealer').on(table.dealerId),
   leadIdx: index('idx_call_sessions_lead').on(table.leadId, table.initiatedAt),
-  signalwireIdx: index('idx_call_sessions_signalwire').on(table.signalwireCallSid).where('signalwire_call_sid IS NOT NULL'),
-  swaigIdx: index('idx_call_sessions_swaig').on(table.swaigSessionId).where('swaig_session_id IS NOT NULL'),
+  signalwireIdx: index('idx_call_sessions_signalwire').on(table.signalwireCallSid).where(sql`signalwire_call_sid IS NOT NULL`),
+  swaigIdx: index('idx_call_sessions_swaig').on(table.swaigSessionId).where(sql`swaig_session_id IS NOT NULL`),
 }));
 
 export const callAttempts = pgTable('call_attempts', {
@@ -218,7 +220,9 @@ export const callAttempts = pgTable('call_attempts', {
 }, (table) => ({
   uniqueLeadAttempt: uniqueIndex('unique_lead_attempt').on(table.leadId, table.attemptNumber),
   leadIdx: index('idx_call_attempts_lead').on(table.leadId, table.attemptNumber),
-  scheduledIdx: index('idx_call_attempts_scheduled').on(table.dealerId, table.scheduledFor).where('status = \'scheduled\' AND scheduled_for IS NOT NULL'),
+  scheduledIdx: index('idx_call_attempts_scheduled').on(table.dealerId, table.scheduledFor).where(
+    sql`status = 'scheduled' AND scheduled_for IS NOT NULL`
+  ),
 }));
 
 export const transcripts = pgTable('transcripts', {
@@ -265,8 +269,8 @@ export const pixelEvents = pgTable('pixel_events', {
   metadata: jsonb('metadata').default('{}'),
 }, (table) => ({
   dealerIdx: index('idx_pixel_events_dealer').on(table.dealerId, table.receivedAt),
-  leadIdx: index('idx_pixel_events_lead').on(table.leadId, table.receivedAt).where('lead_id IS NOT NULL'),
-  unprocessedIdx: index('idx_pixel_events_unprocessed').on(table.dealerId, table.receivedAt).where('processed_at IS NULL'),
+  leadIdx: index('idx_pixel_events_lead').on(table.leadId, table.receivedAt).where(sql`lead_id IS NOT NULL`),
+  unprocessedIdx: index('idx_pixel_events_unprocessed').on(table.dealerId, table.receivedAt).where(sql`processed_at IS NULL`),
 }));
 
 export const notifications = pgTable('notifications', {
@@ -315,8 +319,8 @@ export const optOuts = pgTable('opt_outs', {
   optedOutAt: timestamp('opted_out_at', { withTimezone: true }).notNull().defaultNow(),
   reason: text('reason'),
 }, (table) => ({
-  phoneIdx: index('idx_opt_outs_phone').on(table.dealerId, table.phone).where('phone IS NOT NULL'),
-  emailIdx: index('idx_opt_outs_email').on(table.dealerId, table.email).where('email IS NOT NULL'),
+  phoneIdx: index('idx_opt_outs_phone').on(table.dealerId, table.phone).where(sql`phone IS NOT NULL`),
+  emailIdx: index('idx_opt_outs_email').on(table.dealerId, table.email).where(sql`email IS NOT NULL`),
 }));
 
 // ============================================================
@@ -345,8 +349,8 @@ export const vehicleInterests = pgTable('vehicle_interests', {
 }, (table) => ({
   leadIdx: index('idx_vehicle_interests_lead').on(table.leadId, table.lastViewedAt),
   dealerIdx: index('idx_vehicle_interests_dealer').on(table.dealerId, table.createdAt),
-  primaryIdx: index('idx_vehicle_interests_primary').on(table.leadId, table.isPrimary).where('is_primary = true'),
-  vinIdx: index('idx_vehicle_interests_vin').on(table.vehicleVin).where('vehicle_vin IS NOT NULL'),
+  primaryIdx: index('idx_vehicle_interests_primary').on(table.leadId, table.isPrimary).where(sql`is_primary = true`),
+  vinIdx: index('idx_vehicle_interests_vin').on(table.vehicleVin).where(sql`vehicle_vin IS NOT NULL`),
 }));
 
 export const leadEnrichments = pgTable('lead_enrichments', {
@@ -374,8 +378,8 @@ export const leadEnrichments = pgTable('lead_enrichments', {
 }, (table) => ({
   uniqueLeadEnrichment: uniqueIndex('unique_lead_enrichment').on(table.leadId),
   leadIdx: index('idx_lead_enrichments_lead').on(table.leadId),
-  hemIdx: index('idx_lead_enrichments_hem').on(table.hemSha256).where('hem_sha256 IS NOT NULL'),
-  creditIdx: index('idx_lead_enrichments_credit').on(table.dealerId, table.creditScoreMin).where('credit_score_min IS NOT NULL'),
+  hemIdx: index('idx_lead_enrichments_hem').on(table.hemSha256).where(sql`hem_sha256 IS NOT NULL`),
+  creditIdx: index('idx_lead_enrichments_credit').on(table.dealerId, table.creditScoreMin).where(sql`credit_score_min IS NOT NULL`),
 }));
 
 export const csvImports = pgTable('csv_imports', {
@@ -396,8 +400,8 @@ export const csvImports = pgTable('csv_imports', {
   metadata: jsonb('metadata').default('{}'),
 }, (table) => ({
   dealerIdx: index('idx_csv_imports_dealer').on(table.dealerId, table.createdAt),
-  statusIdx: index('idx_csv_imports_status').on(table.dealerId, table.status).where('status = \'processing\''),
-  hashIdx: index('idx_csv_imports_hash').on(table.fileHash).where('file_hash IS NOT NULL'),
+  statusIdx: index('idx_csv_imports_status').on(table.dealerId, table.status).where(sql`status = 'processing'`),
+  hashIdx: index('idx_csv_imports_hash').on(table.fileHash).where(sql`file_hash IS NOT NULL`),
 }));
 
 // ============================================================
