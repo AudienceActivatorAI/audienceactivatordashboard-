@@ -168,6 +168,19 @@ pnpm build:aggregates
    - Start command: `pnpm --filter @dealerbdc/dashboard preview --host 0.0.0.0 --port $PORT`
    - Environment: `VITE_API_BASE=https://<your-api-service-url>`
 
+### Railway (Dockerfile)
+This repo includes a single Dockerfile that can run **either** the API or the dashboard based on the `SERVICE` env var.
+
+1. Create two Railway services from the same repo.
+2. API service env:
+   - `SERVICE=api`
+   - `DATABASE_URL=...`
+   - `PORT=4000`
+3. Dashboard service env:
+   - `SERVICE=dashboard`
+   - `PORT=3000` (or Railway-provided)
+   - `VITE_API_BASE=https://<your-api-service-url>`
+
 ### Demo Notes
 - No raw PII is shown in the UI. Sample rows are masked and limited to 10.
 - The dataset is expanded deterministically using `demo_multiplier_bucket` + `demo_weight`.
