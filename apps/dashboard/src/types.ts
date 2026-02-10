@@ -16,6 +16,10 @@ export type OverviewResponse = {
     highIntentShoppers: number;
     avgIntentScore: number;
     opportunityIndex: number;
+    contactableShoppers: number;
+    emailReachable: number;
+    phoneReachable: number;
+    bothReachable: number;
   };
   segments: {
     warm: number;
@@ -52,6 +56,11 @@ export type GeoRow = {
   high_intent_shoppers: number;
   avg_intent_score: number;
   opportunity_index: number;
+  contactable_shoppers?: number;
+  email_reachable?: number;
+  phone_reachable?: number;
+  both_reachable?: number;
+  median_home_value?: number;
 };
 
 export type VehiclesRow = {

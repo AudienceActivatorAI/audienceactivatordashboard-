@@ -210,6 +210,7 @@ export const demoAssumptions = [
   'Weights are assigned via demo_multiplier_bucket derived from a customer_id hash.',
   'Intent scores are deterministic (hash + vehicle + match score + credit rating).',
   'Any sample records shown in the UI are masked and limited to 10 rows.',
+  'Home value estimates are sourced from Zillow ZHVI ZIP-level data.',
 ];
 
 export const scoringRules = [

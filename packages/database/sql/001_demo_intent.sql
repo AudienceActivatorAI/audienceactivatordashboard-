@@ -64,6 +64,8 @@ create table if not exists fact_shopper (
   intent_tier text not null,
   demo_multiplier_bucket int not null,
   demo_weight int not null,
+  has_email boolean not null default false,
+  has_phone boolean not null default false,
   masked_email text,
   masked_phone text,
   sample_tag text
@@ -76,6 +78,13 @@ create index if not exists idx_fact_shopper_intent on fact_shopper (intent_tier,
 create index if not exists idx_fact_shopper_created on fact_shopper (created_at);
 create index if not exists idx_fact_shopper_credit on fact_shopper (credit_rating);
 
+create table if not exists dim_zip_home_value (
+  zip text primary key,
+  zhvi int not null,
+  as_of date not null,
+  source text not null default 'Zillow ZHVI'
+);
+
 create table if not exists daily_state_agg (
   date date not null,
   state text not null,
@@ -85,7 +94,12 @@ create table if not exists daily_state_agg (
   opportunity_index int not null,
   warm_shoppers int not null,
   hot_shoppers int not null,
-  superhot_shoppers int not null
+  superhot_shoppers int not null,
+  contactable_shoppers int not null,
+  email_reachable int not null,
+  phone_reachable int not null,
+  both_reachable int not null,
+  median_home_value int not null
 );
 
 create index if not exists idx_daily_state_date on daily_state_agg (date, state);
@@ -100,7 +114,12 @@ create table if not exists daily_city_agg (
   opportunity_index int not null,
   warm_shoppers int not null,
   hot_shoppers int not null,
-  superhot_shoppers int not null
+  superhot_shoppers int not null,
+  contactable_shoppers int not null,
+  email_reachable int not null,
+  phone_reachable int not null,
+  both_reachable int not null,
+  median_home_value int not null
 );
 
 create index if not exists idx_daily_city_date on daily_city_agg (date, state, city);
@@ -116,7 +135,12 @@ create table if not exists daily_zip_agg (
   opportunity_index int not null,
   warm_shoppers int not null,
   hot_shoppers int not null,
-  superhot_shoppers int not null
+  superhot_shoppers int not null,
+  contactable_shoppers int not null,
+  email_reachable int not null,
+  phone_reachable int not null,
+  both_reachable int not null,
+  median_home_value int not null
 );
 
 create index if not exists idx_daily_zip_date on daily_zip_agg (date, state, city, zip);

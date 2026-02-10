@@ -57,6 +57,8 @@ const run = async () => {
       intent_tier,
       demo_multiplier_bucket,
       demo_weight,
+      has_email,
+      has_phone,
       masked_email,
       masked_phone,
       sample_tag
@@ -88,6 +90,14 @@ const run = async () => {
         ${demoWeightCase}
         else 1
       end as demo_weight,
+      case
+        when (coalesce(r.email_primary, '') <> '' or coalesce(r.personal_verified_emails, '') <> '' or coalesce(r.business_verified_emails, '') <> '') then true
+        else false
+      end as has_email,
+      case
+        when (coalesce(r.mobile_phone, '') <> '') then true
+        else false
+      end as has_phone,
       case
         when r.email_primary is null then null
         else regexp_replace(r.email_primary, '^(.).*(@.+)$', '\\\\1***\\\\2')
@@ -150,7 +160,12 @@ const run = async () => {
       )::int as opportunity_index,
       sum(case when f.intent_tier = 'Warm' then f.demo_weight else 0 end)::int as warm_shoppers,
       sum(case when f.intent_tier = 'Hot' then f.demo_weight else 0 end)::int as hot_shoppers,
-      sum(case when f.intent_tier = 'SuperHot' then f.demo_weight else 0 end)::int as superhot_shoppers
+      sum(case when f.intent_tier = 'SuperHot' then f.demo_weight else 0 end)::int as superhot_shoppers,
+      sum(case when f.has_email or f.has_phone then f.demo_weight else 0 end)::int as contactable_shoppers,
+      sum(case when f.has_email then f.demo_weight else 0 end)::int as email_reachable,
+      sum(case when f.has_phone then f.demo_weight else 0 end)::int as phone_reachable,
+      sum(case when f.has_email and f.has_phone then f.demo_weight else 0 end)::int as both_reachable,
+      coalesce(max(z.zhvi), 0)::int as median_home_value
     from (
       select
         f.*,
@@ -158,6 +173,7 @@ const run = async () => {
       from fact_shopper f
     ) f
     join dim_geo g on g.id = f.geo_id
+    left join dim_zip_home_value z on z.zip = g.zip
     group by date, g.state, g.city, g.zip;
   `);
 
@@ -173,7 +189,12 @@ const run = async () => {
       round(avg(opportunity_index))::int as opportunity_index,
       sum(warm_shoppers)::int as warm_shoppers,
       sum(hot_shoppers)::int as hot_shoppers,
-      sum(superhot_shoppers)::int as superhot_shoppers
+      sum(superhot_shoppers)::int as superhot_shoppers,
+      sum(contactable_shoppers)::int as contactable_shoppers,
+      sum(email_reachable)::int as email_reachable,
+      sum(phone_reachable)::int as phone_reachable,
+      sum(both_reachable)::int as both_reachable,
+      round(sum(median_home_value * identified_shoppers)::numeric / nullif(sum(identified_shoppers), 0))::int as median_home_value
     from daily_zip_agg
     group by date, state, city;
   `);
@@ -189,7 +210,12 @@ const run = async () => {
       round(avg(opportunity_index))::int as opportunity_index,
       sum(warm_shoppers)::int as warm_shoppers,
       sum(hot_shoppers)::int as hot_shoppers,
-      sum(superhot_shoppers)::int as superhot_shoppers
+      sum(superhot_shoppers)::int as superhot_shoppers,
+      sum(contactable_shoppers)::int as contactable_shoppers,
+      sum(email_reachable)::int as email_reachable,
+      sum(phone_reachable)::int as phone_reachable,
+      sum(both_reachable)::int as both_reachable,
+      round(sum(median_home_value * identified_shoppers)::numeric / nullif(sum(identified_shoppers), 0))::int as median_home_value
     from daily_city_agg
     group by date, state;
   `);

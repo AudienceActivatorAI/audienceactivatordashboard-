@@ -119,6 +119,7 @@ export default function App() {
           <div className="grid gap-6">
             <KpiCards
               identified={overview.kpis.identifiedShoppers}
+              contactable={overview.kpis.contactableShoppers}
               highIntent={overview.kpis.highIntentShoppers}
               avgIntent={overview.kpis.avgIntentScore}
               opportunity={overview.kpis.opportunityIndex}

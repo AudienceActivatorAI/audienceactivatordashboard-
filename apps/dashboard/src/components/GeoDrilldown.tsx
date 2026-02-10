@@ -34,9 +34,11 @@ export const GeoDrilldown = ({ rows, level, state, city, onSelect }: Props) => {
             <tr className="text-white/60 text-xs uppercase tracking-widest">
               <th className="text-left pb-2">Location</th>
               <th className="text-right pb-2">Identified</th>
+              <th className="text-right pb-2">Contactable</th>
               <th className="text-right pb-2">High Intent</th>
               <th className="text-right pb-2">Avg Intent</th>
               <th className="text-right pb-2">Opportunity</th>
+              <th className="text-right pb-2">Home Value</th>
             </tr>
           </thead>
           <tbody>
@@ -59,9 +61,15 @@ export const GeoDrilldown = ({ rows, level, state, city, onSelect }: Props) => {
                 >
                   <td className="py-3">{label}</td>
                   <td className="py-3 text-right">{formatNumber(row.identified_shoppers)}</td>
+                  <td className="py-3 text-right">
+                    {formatNumber(row.contactable_shoppers ?? 0)}
+                  </td>
                   <td className="py-3 text-right">{formatNumber(row.high_intent_shoppers)}</td>
                   <td className="py-3 text-right">{row.avg_intent_score}</td>
                   <td className="py-3 text-right">{row.opportunity_index}</td>
+                  <td className="py-3 text-right">
+                    {row.median_home_value ? `$${formatNumber(row.median_home_value)}` : '—'}
+                  </td>
                 </tr>
               );
             })}

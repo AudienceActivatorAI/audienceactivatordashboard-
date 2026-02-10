@@ -519,6 +519,8 @@ export const factShopper = pgTable('fact_shopper', {
   intentTier: text('intent_tier').notNull(), // 'Warm' | 'Hot' | 'SuperHot'
   demoMultiplierBucket: integer('demo_multiplier_bucket').notNull(),
   demoWeight: integer('demo_weight').notNull(),
+  hasEmail: boolean('has_email').notNull().default(false),
+  hasPhone: boolean('has_phone').notNull().default(false),
   maskedEmail: text('masked_email'),
   maskedPhone: text('masked_phone'),
   sampleTag: text('sample_tag'), // 'demo' when safe to show in UI
@@ -531,6 +533,13 @@ export const factShopper = pgTable('fact_shopper', {
   creditIdx: index('idx_fact_shopper_credit').on(table.creditRating),
 }));
 
+export const dimZipHomeValue = pgTable('dim_zip_home_value', {
+  zip: text('zip').primaryKey(),
+  zhvi: integer('zhvi').notNull(),
+  asOf: date('as_of').notNull(),
+  source: text('source').notNull().default('Zillow ZHVI'),
+});
+
 export const dailyStateAgg = pgTable('daily_state_agg', {
   date: date('date').notNull(),
   state: text('state').notNull(),
@@ -541,6 +550,11 @@ export const dailyStateAgg = pgTable('daily_state_agg', {
   warmShoppers: integer('warm_shoppers').notNull(),
   hotShoppers: integer('hot_shoppers').notNull(),
   superHotShoppers: integer('superhot_shoppers').notNull(),
+  contactableShoppers: integer('contactable_shoppers').notNull(),
+  emailReachable: integer('email_reachable').notNull(),
+  phoneReachable: integer('phone_reachable').notNull(),
+  bothReachable: integer('both_reachable').notNull(),
+  medianHomeValue: integer('median_home_value').notNull(),
 }, (table) => ({
   stateDateIdx: index('idx_daily_state_date').on(table.date, table.state),
 }));
@@ -556,6 +570,11 @@ export const dailyCityAgg = pgTable('daily_city_agg', {
   warmShoppers: integer('warm_shoppers').notNull(),
   hotShoppers: integer('hot_shoppers').notNull(),
   superHotShoppers: integer('superhot_shoppers').notNull(),
+  contactableShoppers: integer('contactable_shoppers').notNull(),
+  emailReachable: integer('email_reachable').notNull(),
+  phoneReachable: integer('phone_reachable').notNull(),
+  bothReachable: integer('both_reachable').notNull(),
+  medianHomeValue: integer('median_home_value').notNull(),
 }, (table) => ({
   cityDateIdx: index('idx_daily_city_date').on(table.date, table.state, table.city),
 }));
@@ -572,6 +591,11 @@ export const dailyZipAgg = pgTable('daily_zip_agg', {
   warmShoppers: integer('warm_shoppers').notNull(),
   hotShoppers: integer('hot_shoppers').notNull(),
   superHotShoppers: integer('superhot_shoppers').notNull(),
+  contactableShoppers: integer('contactable_shoppers').notNull(),
+  emailReachable: integer('email_reachable').notNull(),
+  phoneReachable: integer('phone_reachable').notNull(),
+  bothReachable: integer('both_reachable').notNull(),
+  medianHomeValue: integer('median_home_value').notNull(),
 }, (table) => ({
   zipDateIdx: index('idx_daily_zip_date').on(table.date, table.state, table.city, table.zip),
 }));

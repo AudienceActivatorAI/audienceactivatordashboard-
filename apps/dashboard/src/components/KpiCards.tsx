@@ -3,17 +3,23 @@ type Props = {
   highIntent: number;
   avgIntent: number;
   opportunity: number;
+  contactable: number;
 };
 
 const formatNumber = (value: number) => value.toLocaleString();
 
-export const KpiCards = ({ identified, highIntent, avgIntent, opportunity }: Props) => {
+export const KpiCards = ({ identified, highIntent, avgIntent, opportunity, contactable }: Props) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
       <div className="kpi-card">
         <span className="text-xs uppercase tracking-widest text-white/50">Identified Shoppers</span>
         <div className="text-2xl font-semibold">{formatNumber(identified)}</div>
         <span className="text-xs text-white/60">Weighted demo count</span>
+      </div>
+      <div className="kpi-card">
+        <span className="text-xs uppercase tracking-widest text-white/50">Contactable Audience</span>
+        <div className="text-2xl font-semibold">{formatNumber(contactable)}</div>
+        <span className="text-xs text-white/60">Email or phone</span>
       </div>
       <div className="kpi-card">
         <span className="text-xs uppercase tracking-widest text-white/50">High Intent</span>

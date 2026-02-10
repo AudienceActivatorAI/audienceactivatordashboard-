@@ -129,17 +129,21 @@ app.get('/api/overview', async (req, res) => {
         ${buildFactWhere(filters)}
       `)
     : await db.execute(sql`
-        select
-          sum(identified_shoppers)::int as identified_shoppers,
-          sum(high_intent_shoppers)::int as high_intent_shoppers,
-          round(avg(avg_intent_score))::int as avg_intent_score,
-          round(avg(opportunity_index))::int as opportunity_index,
-          sum(warm_shoppers)::int as warm_shoppers,
-          sum(hot_shoppers)::int as hot_shoppers,
-          sum(superhot_shoppers)::int as superhot_shoppers
-        from ${aggTable}
-        ${whereAgg}
-      `);
+    select
+      sum(identified_shoppers)::int as identified_shoppers,
+      sum(high_intent_shoppers)::int as high_intent_shoppers,
+      round(avg(avg_intent_score))::int as avg_intent_score,
+      round(avg(opportunity_index))::int as opportunity_index,
+      sum(warm_shoppers)::int as warm_shoppers,
+      sum(hot_shoppers)::int as hot_shoppers,
+      sum(superhot_shoppers)::int as superhot_shoppers,
+      sum(contactable_shoppers)::int as contactable_shoppers,
+      sum(email_reachable)::int as email_reachable,
+      sum(phone_reachable)::int as phone_reachable,
+      sum(both_reachable)::int as both_reachable
+    from ${aggTable}
+    ${whereAgg}
+  `);
 
   const trend = usesFactFilters
     ? await db.execute(sql`
@@ -160,17 +164,18 @@ app.get('/api/overview', async (req, res) => {
         order by date
       `)
     : await db.execute(sql`
-        select
-          date::date as date,
-          sum(identified_shoppers)::int as identified_shoppers,
-          sum(high_intent_shoppers)::int as high_intent_shoppers,
-          round(avg(avg_intent_score))::int as avg_intent_score,
-          round(avg(opportunity_index))::int as opportunity_index
-        from ${aggTable}
-        ${whereAgg}
-        group by date
-        order by date
-      `);
+    select
+      date::date as date,
+      sum(identified_shoppers)::int as identified_shoppers,
+      sum(high_intent_shoppers)::int as high_intent_shoppers,
+      round(avg(avg_intent_score))::int as avg_intent_score,
+      round(avg(opportunity_index))::int as opportunity_index,
+      sum(contactable_shoppers)::int as contactable_shoppers
+    from ${aggTable}
+    ${whereAgg}
+    group by date
+    order by date
+  `);
 
   const samples = await db.execute(sql`
     select
@@ -202,6 +207,10 @@ app.get('/api/overview', async (req, res) => {
       highIntentShoppers: totalsRow.high_intent_shoppers ?? 0,
       avgIntentScore: totalsRow.avg_intent_score ?? 0,
       opportunityIndex: totalsRow.opportunity_index ?? 0,
+      contactableShoppers: totalsRow.contactable_shoppers ?? 0,
+      emailReachable: totalsRow.email_reachable ?? 0,
+      phoneReachable: totalsRow.phone_reachable ?? 0,
+      bothReachable: totalsRow.both_reachable ?? 0,
     },
     segments: {
       warm: totalsRow.warm_shoppers ?? 0,
@@ -243,7 +252,12 @@ app.get('/api/geo/state', async (req, res) => {
           sum(identified_shoppers)::int as identified_shoppers,
           sum(high_intent_shoppers)::int as high_intent_shoppers,
           round(avg(avg_intent_score))::int as avg_intent_score,
-          round(avg(opportunity_index))::int as opportunity_index
+          round(avg(opportunity_index))::int as opportunity_index,
+          sum(contactable_shoppers)::int as contactable_shoppers,
+          sum(email_reachable)::int as email_reachable,
+          sum(phone_reachable)::int as phone_reachable,
+          sum(both_reachable)::int as both_reachable,
+          round(avg(median_home_value))::int as median_home_value
         from daily_state_agg
         ${whereAgg}
         group by state
@@ -288,7 +302,12 @@ app.get('/api/geo/city', async (req, res) => {
           sum(identified_shoppers)::int as identified_shoppers,
           sum(high_intent_shoppers)::int as high_intent_shoppers,
           round(avg(avg_intent_score))::int as avg_intent_score,
-          round(avg(opportunity_index))::int as opportunity_index
+          round(avg(opportunity_index))::int as opportunity_index,
+          sum(contactable_shoppers)::int as contactable_shoppers,
+          sum(email_reachable)::int as email_reachable,
+          sum(phone_reachable)::int as phone_reachable,
+          sum(both_reachable)::int as both_reachable,
+          round(avg(median_home_value))::int as median_home_value
         from daily_city_agg
         ${whereAgg}
         group by state, city
@@ -335,7 +354,12 @@ app.get('/api/geo/zip', async (req, res) => {
           sum(identified_shoppers)::int as identified_shoppers,
           sum(high_intent_shoppers)::int as high_intent_shoppers,
           round(avg(avg_intent_score))::int as avg_intent_score,
-          round(avg(opportunity_index))::int as opportunity_index
+          round(avg(opportunity_index))::int as opportunity_index,
+          sum(contactable_shoppers)::int as contactable_shoppers,
+          sum(email_reachable)::int as email_reachable,
+          sum(phone_reachable)::int as phone_reachable,
+          sum(both_reachable)::int as both_reachable,
+          round(avg(median_home_value))::int as median_home_value
         from daily_zip_agg
         ${whereAgg}
         group by state, city, zip
