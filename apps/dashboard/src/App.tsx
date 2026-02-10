@@ -133,6 +133,7 @@ export default function App() {
             <KpiCards
               identified={overview.kpis.identifiedShoppers}
               contactable={overview.kpis.contactableShoppers}
+              audienceSize={overview.kpis.contactableShoppers}
               highIntent={overview.kpis.highIntentShoppers}
               avgIntent={overview.kpis.avgIntentScore}
               opportunity={overview.kpis.opportunityIndex}

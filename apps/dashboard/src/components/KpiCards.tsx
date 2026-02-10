@@ -4,13 +4,14 @@ type Props = {
   avgIntent: number;
   opportunity: number;
   contactable: number;
+  audienceSize: number;
 };
 
 const formatNumber = (value: number) => value.toLocaleString();
 
-export const KpiCards = ({ identified, highIntent, avgIntent, opportunity, contactable }: Props) => {
+export const KpiCards = ({ identified, highIntent, avgIntent, opportunity, contactable, audienceSize }: Props) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
       <div className="kpi-card">
         <span className="text-xs uppercase tracking-widest text-white/50">Identified Shoppers</span>
         <div className="text-2xl font-semibold">{formatNumber(identified)}</div>
@@ -20,6 +21,11 @@ export const KpiCards = ({ identified, highIntent, avgIntent, opportunity, conta
         <span className="text-xs uppercase tracking-widest text-white/50">Contactable Audience</span>
         <div className="text-2xl font-semibold">{formatNumber(contactable)}</div>
         <span className="text-xs text-white/60">Email or phone</span>
+      </div>
+      <div className="kpi-card">
+        <span className="text-xs uppercase tracking-widest text-white/50">Ad Audience Size</span>
+        <div className="text-2xl font-semibold">{formatNumber(audienceSize)}</div>
+        <span className="text-xs text-white/60">Meta / Google / TikTok</span>
       </div>
       <div className="kpi-card">
         <span className="text-xs uppercase tracking-widest text-white/50">High Intent</span>
