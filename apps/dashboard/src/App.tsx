@@ -11,6 +11,7 @@ import { IntentSegments } from './components/IntentSegments';
 import { CodexTab } from './components/CodexTab';
 import { SampleTable } from './components/SampleTable';
 import { AudienceDrawer } from './components/AudienceDrawer';
+import { AdStrategyPanel } from './components/AdStrategyPanel';
 
 const getDefaultDates = () => {
   const today = new Date();
@@ -252,6 +253,7 @@ export default function App() {
               hot={overview.segments.hot}
               superhot={overview.segments.superhot}
             />
+            <AdStrategyPanel creditRating={filters.creditRating} intentTier={undefined} />
             <div className="glass-panel p-6">
               <h3 className="font-display text-lg mb-3">Opportunity Index</h3>
               <p className="text-white/70">
