@@ -1,4 +1,4 @@
-import type { CodexResponse, Filters, FiltersResponse, GeoRow, OverviewResponse, VehiclesRow } from './types';
+import type { AudienceRow, CodexResponse, Filters, FiltersResponse, GeoRow, OverviewResponse, VehiclesRow } from './types';
 
 const DEFAULT_API_BASE = 'http://localhost:4000';
 const BUILD_API_BASE = import.meta.env.VITE_API_BASE as string | undefined;
@@ -77,4 +77,12 @@ export const fetchFilters = async (): Promise<FiltersResponse> => {
   const res = await fetch(`${apiBase}/api/filters`);
   if (!res.ok) throw new Error('Failed to load filters');
   return res.json();
+};
+
+export const fetchAudience = async (filters: Filters): Promise<AudienceRow[]> => {
+  const apiBase = await resolveApiBase();
+  const res = await fetch(`${apiBase}/api/audience?${toQuery(filters)}`);
+  if (!res.ok) throw new Error('Failed to load audience');
+  const data = await res.json();
+  return data.rows ?? [];
 };

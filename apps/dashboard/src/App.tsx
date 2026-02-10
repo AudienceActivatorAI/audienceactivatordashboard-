@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { fetchCodex, fetchFilters, fetchGeo, fetchOverview, fetchVehicles } from './api';
-import type { CodexResponse, Filters, FiltersResponse, GeoRow, OverviewResponse, VehiclesRow } from './types';
+import { fetchAudience, fetchCodex, fetchFilters, fetchGeo, fetchOverview, fetchVehicles } from './api';
+import type { AudienceRow, CodexResponse, Filters, FiltersResponse, GeoRow, OverviewResponse, VehiclesRow } from './types';
 import { FilterBar } from './components/FilterBar';
 import { TabNav, type TabKey } from './components/TabNav';
 import { KpiCards } from './components/KpiCards';
@@ -10,6 +10,7 @@ import { VehicleDemand } from './components/VehicleDemand';
 import { IntentSegments } from './components/IntentSegments';
 import { CodexTab } from './components/CodexTab';
 import { SampleTable } from './components/SampleTable';
+import { AudienceDrawer } from './components/AudienceDrawer';
 
 const getDefaultDates = () => {
   const today = new Date();
@@ -30,6 +31,9 @@ export default function App() {
   const [vehicles, setVehicles] = useState<VehiclesRow[]>([]);
   const [codex, setCodex] = useState<CodexResponse | null>(null);
   const [showSamples, setShowSamples] = useState(false);
+  const [audienceOpen, setAudienceOpen] = useState(false);
+  const [audienceTitle, setAudienceTitle] = useState('Audience');
+  const [audienceRows, setAudienceRows] = useState<AudienceRow[]>([]);
 
   const geoLevel = useMemo(() => {
     if (filters.city) return 'zip';
@@ -83,6 +87,14 @@ export default function App() {
     }));
   };
 
+  const openAudience = async (title: string, extra?: Partial<Filters>) => {
+    const nextFilters = { ...filters, ...extra };
+    setAudienceTitle(title);
+    const rows = await fetchAudience(nextFilters);
+    setAudienceRows(rows);
+    setAudienceOpen(true);
+  };
+
   return (
     <div className="min-h-screen">
       <header className="max-w-6xl mx-auto px-6 py-10">
@@ -124,6 +136,42 @@ export default function App() {
               avgIntent={overview.kpis.avgIntentScore}
               opportunity={overview.kpis.opportunityIndex}
             />
+            <div className="glass-panel p-4 flex items-center justify-between">
+              <div>
+                <h3 className="font-display text-lg">Reachable Audience</h3>
+                <p className="text-sm text-white/60">View masked audience records for activation.</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  className="btn-ghost"
+                  type="button"
+                  onClick={() => openAudience('Contactable Audience', { audienceType: 'contactable' })}
+                >
+                  View contactable
+                </button>
+                <button
+                  className="btn-ghost"
+                  type="button"
+                  onClick={() => openAudience('Email Reachable', { audienceType: 'email' })}
+                >
+                  Email
+                </button>
+                <button
+                  className="btn-ghost"
+                  type="button"
+                  onClick={() => openAudience('Phone Reachable', { audienceType: 'phone' })}
+                >
+                  Phone
+                </button>
+                <button
+                  className="btn-ghost"
+                  type="button"
+                  onClick={() => openAudience('Email + Phone', { audienceType: 'both' })}
+                >
+                  Both
+                </button>
+              </div>
+            </div>
             <div className="grid lg:grid-cols-[2fr,1fr] gap-6">
               <TrendChart data={overview.trend} />
               <IntentSegments
@@ -152,16 +200,50 @@ export default function App() {
         )}
 
         {activeTab === 'Geo Intelligence' && (
-          <GeoDrilldown
-            rows={geoRows}
-            level={geoLevel}
-            state={filters.state}
-            city={filters.city}
-            onSelect={handleGeoSelect}
-          />
+          <div className="grid gap-4">
+            <GeoDrilldown
+              rows={geoRows}
+              level={geoLevel}
+              state={filters.state}
+              city={filters.city}
+              onSelect={handleGeoSelect}
+            />
+            <div className="glass-panel p-4 flex items-center justify-between">
+              <div>
+                <h3 className="font-display text-lg">Geo Audience</h3>
+                <p className="text-sm text-white/60">Pull masked audiences for the current geo.</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  className="btn-ghost"
+                  type="button"
+                  onClick={() => openAudience('Geo Contactable Audience', { audienceType: 'contactable' })}
+                >
+                  View audience
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
-        {activeTab === 'Vehicle Demand' && <VehicleDemand rows={vehicles} />}
+        {activeTab === 'Vehicle Demand' && (
+          <div className="grid gap-4">
+            <VehicleDemand rows={vehicles} />
+            <div className="glass-panel p-4 flex items-center justify-between">
+              <div>
+                <h3 className="font-display text-lg">Vehicle Audience</h3>
+                <p className="text-sm text-white/60">Review audiences for selected make/model filters.</p>
+              </div>
+              <button
+                className="btn-ghost"
+                type="button"
+                onClick={() => openAudience('Vehicle Audience', { audienceType: 'contactable' })}
+              >
+                View audience
+              </button>
+            </div>
+          </div>
+        )}
 
         {activeTab === 'Intent & Segments' && overview && (
           <div className="grid gap-6">
@@ -182,6 +264,13 @@ export default function App() {
 
         {activeTab === 'AI Model' && <CodexTab codex={codex} />}
       </main>
+      <AudienceDrawer
+        open={audienceOpen}
+        title={audienceTitle}
+        rows={audienceRows}
+        onClose={() => setAudienceOpen(false)}
+        filters={filters}
+      />
     </div>
   );
 }

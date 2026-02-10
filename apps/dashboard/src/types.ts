@@ -8,6 +8,7 @@ export type Filters = {
   model?: string;
   modelYearBand?: string;
   creditRating?: string;
+  audienceType?: 'contactable' | 'email' | 'phone' | 'both';
 };
 
 export type OverviewResponse = {
@@ -91,4 +92,21 @@ export type FiltersResponse = {
   models: string[];
   yearBands: string[];
   creditRatings: string[];
+};
+
+export type AudienceRow = {
+  masked_email: string | null;
+  masked_phone: string | null;
+  city: string;
+  state: string;
+  zip: string;
+  make: string;
+  model: string;
+  model_year: number;
+  intent_score: number;
+  intent_tier: string;
+  credit_rating: string;
+  created_at: string;
+  has_email: boolean;
+  has_phone: boolean;
 };

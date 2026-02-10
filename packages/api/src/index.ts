@@ -28,6 +28,7 @@ type Filters = {
   model?: string;
   yearBand?: string;
   creditRating?: string;
+  audienceType?: string;
 };
 
 const parseDateRange = (query: Record<string, string | undefined>) => {
@@ -54,6 +55,7 @@ const buildFilters = (query: Record<string, string | undefined>): Filters => {
     model: query.model || undefined,
     yearBand: query.model_year_band || undefined,
     creditRating: query.credit_rating || undefined,
+    audienceType: query.audience_type || undefined,
   };
 };
 
@@ -76,6 +78,10 @@ const buildFactWhere = (filters: Filters) => {
   if (filters.make) clauses.push(sql`v.make = ${filters.make}`);
   if (filters.model) clauses.push(sql`v.model = ${filters.model}`);
   if (filters.creditRating) clauses.push(sql`f.credit_rating = ${filters.creditRating}`);
+  if (filters.audienceType === 'contactable') clauses.push(sql`(f.has_email = true or f.has_phone = true)`);
+  if (filters.audienceType === 'email') clauses.push(sql`f.has_email = true`);
+  if (filters.audienceType === 'phone') clauses.push(sql`f.has_phone = true`);
+  if (filters.audienceType === 'both') clauses.push(sql`(f.has_email = true and f.has_phone = true)`);
   const yearClause = modelYearBandSql(filters.yearBand);
   if (yearClause) clauses.push(yearClause);
   return clauses.length ? sql`where ${sql.join(clauses, sql` and `)}` : sql``;
@@ -409,6 +415,34 @@ app.get('/api/filters', async (_req, res) => {
     yearBands: ['2015-2019', '2020-2022', '2023-2024', '2025+'],
     creditRatings: ['A', 'B', 'C', 'D', 'E'],
   });
+});
+
+app.get('/api/audience', async (req, res) => {
+  const filters = buildFilters(req.query as Record<string, string | undefined>);
+  const result = await db.execute(sql`
+    select
+      f.masked_email,
+      f.masked_phone,
+      g.city,
+      g.state,
+      g.zip,
+      v.make,
+      v.model,
+      v.model_year,
+      f.intent_score,
+      f.intent_tier,
+      f.credit_rating,
+      f.created_at::date as created_at,
+      f.has_email,
+      f.has_phone
+    from fact_shopper f
+    join dim_geo g on g.id = f.geo_id
+    join dim_vehicle v on v.id = f.vehicle_id
+    ${buildFactWhere(filters)}
+    order by f.created_at desc
+    limit 200
+  `);
+  res.json({ rows: getRows<Record<string, string>>(result) });
 });
 
 app.get('/api/codex', (_req, res) => {
