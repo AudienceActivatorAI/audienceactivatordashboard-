@@ -194,7 +194,7 @@ const run = async () => {
       sum(email_reachable)::int as email_reachable,
       sum(phone_reachable)::int as phone_reachable,
       sum(both_reachable)::int as both_reachable,
-      round(sum(median_home_value * identified_shoppers)::numeric / nullif(sum(identified_shoppers), 0))::int as median_home_value
+      round(sum((median_home_value::numeric) * identified_shoppers)::numeric / nullif(sum(identified_shoppers), 0))::int as median_home_value
     from daily_zip_agg
     group by date, state, city;
   `);
@@ -215,7 +215,7 @@ const run = async () => {
       sum(email_reachable)::int as email_reachable,
       sum(phone_reachable)::int as phone_reachable,
       sum(both_reachable)::int as both_reachable,
-      round(sum(median_home_value * identified_shoppers)::numeric / nullif(sum(identified_shoppers), 0))::int as median_home_value
+      round(sum((median_home_value::numeric) * identified_shoppers)::numeric / nullif(sum(identified_shoppers), 0))::int as median_home_value
     from daily_city_agg
     group by date, state;
   `);
