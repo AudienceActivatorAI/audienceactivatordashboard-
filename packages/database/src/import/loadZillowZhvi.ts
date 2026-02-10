@@ -68,7 +68,7 @@ const run = async () => {
   }
 
   output.end();
-  await new Promise((resolve) => output.on('finish', resolve));
+  await new Promise<void>((resolve) => output.on('finish', () => resolve()));
 
   console.log('📥 Loading ZHVI into Postgres...');
   const client = new Client({ connectionString });
